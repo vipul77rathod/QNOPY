@@ -29,7 +29,7 @@ class _KycPageState extends State<KycPage> {
         appBar: AppBar(
             title: const Text('Identity verification'),
         ),
-        body: SafeArea(child: Obx(() {
+        body: Obx(() {
           final current = c.session.value;
           return RefreshIndicator(
             onRefresh: () async {
@@ -46,7 +46,9 @@ class _KycPageState extends State<KycPage> {
                 const SizedBox(height: 18),
                 _Steps(session: current),
                 const SizedBox(height: 18),
+
                 if (c.errorMessage.value.isNotEmpty) _ErrorCard(message: c.errorMessage.value),
+
                 if (current == null)
                   Center(child: Padding(padding: const EdgeInsets.all(24), child: FilledButton(onPressed: c.isBusy.value ? null : c.loadOrCreateSession, child: const Text('Retry loading session'))))
                 else
@@ -55,7 +57,7 @@ class _KycPageState extends State<KycPage> {
               ])),
             ]),
           );
-        })),
+        }),
       );
 
   Widget _stateBody(BuildContext context, KycSessionModel s) {
@@ -80,7 +82,7 @@ class _KycPageState extends State<KycPage> {
     TextFormField(
       key: const ValueKey('document-number'),
       textCapitalization: TextCapitalization.characters,
-      autocorrect: false,
+      maxLength: c.selectedDocType.value == 'aadhaar' ? 12 : c.selectedDocType.value == 'pan' ? 10 : 8,
       obscureText: c.isVisible.value,
       keyboardType: c.selectedDocType.value == 'aadhaar' ? TextInputType.number : TextInputType.text,
       decoration: InputDecoration(
@@ -89,7 +91,7 @@ class _KycPageState extends State<KycPage> {
               onPressed: (){
                 c.isVisible.value = !c.isVisible.value;
               },
-              icon: c.isVisible.value ? Icon(Icons.lock_open) : Icon(Icons.lock),
+              icon: !c.isVisible.value ? Icon(Icons.lock_open) : Icon(Icons.lock),
             );
           }),
           labelText: 'Document number', hintText: 'Enter document number'),

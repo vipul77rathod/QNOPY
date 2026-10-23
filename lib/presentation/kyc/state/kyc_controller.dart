@@ -23,7 +23,7 @@ class KycController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    unawaited(loadOrCreateSession());
+    loadOrCreateSession();
   }
 
   @override
@@ -93,7 +93,7 @@ class KycController extends GetxController {
       _manageReviewPolling();
     } catch (e) {
       errorMessage.value = _friendlyError(e);
-      if (e is DioException && (e.response?.statusCode == 409 || e.response?.statusCode == 423)) unawaited(refreshSession());
+      if (e is DioException && (e.response?.statusCode == 409 || e.response?.statusCode == 423)) refreshSession();
     } finally {
       isBusy.value = false;
     }
