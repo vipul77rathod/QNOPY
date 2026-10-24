@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import '../../../core/service/screenshot_protection.dart';
 import '../../../data/kyc/models/kyc_session_model.dart';
 import '../../../data/kyc/repositories/kyc_repository.dart';
 import 'kyc_document_validator.dart';
@@ -15,7 +16,7 @@ class KycController extends GetxController {
   final RxBool isVisible = true.obs;
   final RxString errorMessage = ''.obs;
   final RxString selectedDocType = 'pan'.obs;
-  final RxString docNumber = ''.obs; // memory only; never persist or log
+  final RxString docNumber = ''.obs;
   final RxDouble livenessScore = 0.9.obs;
   Timer? _reviewTimer;
   bool _pollInFlight = false;
@@ -24,11 +25,13 @@ class KycController extends GetxController {
   void onInit() {
     super.onInit();
     loadOrCreateSession();
+    ScreenshotProtection.disable();
   }
 
   @override
   void onClose() {
     _reviewTimer?.cancel();
+    ScreenshotProtection.enable();
     super.onClose();
   }
 
@@ -74,7 +77,7 @@ class KycController extends GetxController {
     errorMessage.value = '';
     try {
       session.value = await _repository.submitDocument(sessionId: current.sessionId, docType: selectedDocType.value, docNumber: number);
-      docNumber.value = ''; // clear sensitive input from controller after request
+      docNumber.value = '';
       _manageReviewPolling();
     } catch (e) {
       errorMessage.value = _friendlyError(e);
